@@ -10,9 +10,9 @@ import android.support.v13.app.FragmentStatePagerAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.infogene.contacto.fragments.PagerItemFragment;
-import fr.infogene.contacto.model.Constants;
-import fr.infogene.contacto.model.Lens;
+import com.szn.jukebox.fragments.PagerItemFragment;
+import com.szn.jukebox.model.Constants;
+import com.szn.jukebox.model.Product;
 
 /**
  * Created by Julien Sezn on 11/09/2015.
@@ -21,14 +21,14 @@ import fr.infogene.contacto.model.Lens;
 public class PagerProductsAdapter extends FragmentStatePagerAdapter {
 
     private Context context;
-    private List<Lens> products = new ArrayList<>();
+    private List<Product> products = new ArrayList<>();
 
 
     public PagerProductsAdapter(FragmentManager fm) {
         super(fm);
     }
 
-    public PagerProductsAdapter(FragmentManager fragmentManager, Activity activity, List<Lens> products) {
+    public PagerProductsAdapter(FragmentManager fragmentManager, Activity activity, List<Product> products) {
         super(fragmentManager);
         this.context = activity;
         this.products = products;

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+
+	    <item >
+			<shape  android:shape="oval">
+                <solid android:color="@android:color/transparent"></solid>
+
+			    <stroke android:width="12px" android:color="@color/colorPrimaryDark" />
+			    <size android:height="@dimen/profilePic" android:width="@dimen/profilePic"/>
+			</shape>
+		</item>	    
+	    
+</layer-list>

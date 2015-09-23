@@ -9,10 +9,10 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-import fr.infogene.contacto.R;
-import fr.infogene.contacto.adapters.PagerProductsAdapter;
-import fr.infogene.contacto.model.Lens;
-import fr.infogene.contacto.utils.Utils;
+import com.szn.jukebox.R;
+import com.szn.jukebox.adapters.PagerProductsAdapter;
+import com.szn.jukebox.model.Product;
+import com.szn.jukebox.utils.Utils;
 
 /**
  * Fragment Affichage Infos Profil
@@ -23,7 +23,7 @@ public class SimilarProductsFragment extends Fragment {
 
 
     private static final String TAG = SimilarProductsFragment.class.getSimpleName();
-    private List<Lens> products;
+    private List<Product> products;
 
 
     public static SimilarProductsFragment newInstance(Bundle bdl) {

@@ -11,11 +11,11 @@ import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
+import com.szn.jukebox.R;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import fr.infogene.contacto.R;
 
 /**
  * Adapter pour le DrawerLayout (Menu)

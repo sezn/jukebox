@@ -18,13 +18,13 @@ import android.widget.TextView;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 
-import fr.infogene.contacto.BuildConfig;
-import fr.infogene.contacto.JukeApplication;
-import fr.infogene.contacto.R;
-import fr.infogene.contacto.interfaces.LoginListener;
-import fr.infogene.contacto.model.Constants;
-import fr.infogene.contacto.model.User;
-import fr.infogene.contacto.request.GsonRequest;
+import com.szn.jukebox.BuildConfig;
+import com.szn.jukebox.JukeApplication;
+import com.szn.jukebox.R;
+import com.szn.jukebox.interfaces.LoginListener;
+import com.szn.jukebox.model.Constants;
+import com.szn.jukebox.model.User;
+import com.szn.jukebox.request.GsonRequest;
 
 /**
  * Fragment Affichage Infos Profil

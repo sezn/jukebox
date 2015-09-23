@@ -20,9 +20,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import fr.infogene.contacto.BuildConfig;
-import fr.infogene.contacto.JukeApplication;
-import fr.infogene.contacto.model.Constants;
+import com.szn.jukebox.BuildConfig;
+import com.szn.jukebox.JukeApplication;
+import com.szn.jukebox.model.Constants;
 
 
 /**

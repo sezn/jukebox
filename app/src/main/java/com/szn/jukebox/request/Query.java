@@ -14,12 +14,11 @@ import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
+import com.szn.jukebox.JukeApplication;
+import com.szn.jukebox.model.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import fr.infogene.contacto.JukeApplication;
-import fr.infogene.contacto.model.Constants;
 
 
 /**

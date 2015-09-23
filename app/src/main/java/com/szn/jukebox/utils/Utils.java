@@ -21,8 +21,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.infogene.contacto.model.EyeCorrection;
-import fr.infogene.contacto.model.Lens;
+import com.szn.jukebox.model.EyeCorrection;
+import com.szn.jukebox.model.Product;
 
 /**
  * Created by Julien Sezn on 10/09/2015.
@@ -54,8 +54,8 @@ public class Utils {
         return jsonString;
     }
 
-    public static List<Lens> getProductsFromJSON(Context con){
-        List<Lens> events = new ArrayList<>();
+    public static List<Product> getProductsFromJSON(Context con){
+        List<Product> events = new ArrayList<>();
 
         Gson gson = new Gson();
         String jsonStr = readFromAssets(con, "products.json");
@@ -66,7 +66,7 @@ public class Utils {
 
             if(jsArray != null){
                 for(int i= 0; i < jsArray.length(); i++){
-                    events.add(gson.fromJson(jsArray.getJSONObject(i).toString(), Lens.class));
+                    events.add(gson.fromJson(jsArray.getJSONObject(i).toString(), Product.class));
                 }
             }
 
@@ -101,10 +101,10 @@ public class Utils {
     }
 
 
-    public static Lens getMesLentillesFromJSON(Context con){
+    public static Product getMesLentillesFromJSON(Context con){
 
         String jsonStr = readFromAssets(con, "meslentilles.json");
-        Lens lens = new Gson().fromJson(jsonStr, Lens.class);
+        Product lens = new Gson().fromJson(jsonStr, Product.class);
         return lens;
     }
 

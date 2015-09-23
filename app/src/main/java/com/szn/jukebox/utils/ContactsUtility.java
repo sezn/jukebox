@@ -12,8 +12,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import fr.infogene.contacto.R;
-import fr.infogene.contacto.model.Store;
+import com.szn.jukebox.R;
+import com.szn.jukebox.model.Store;
 
 
 /**

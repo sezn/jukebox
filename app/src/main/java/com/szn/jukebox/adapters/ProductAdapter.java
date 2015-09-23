@@ -18,10 +18,10 @@ import com.android.volley.toolbox.ImageLoader;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.infogene.contacto.JukeApplication;
-import fr.infogene.contacto.R;
-import fr.infogene.contacto.interfaces.AdapterListener;
-import fr.infogene.contacto.model.Lens;
+import com.szn.jukebox.JukeApplication;
+import com.szn.jukebox.R;
+import com.szn.jukebox.interfaces.AdapterListener;
+import com.szn.jukebox.model.Product;
 
 /**
  * Created by Julien Sezn on 11/09/2015.
@@ -31,14 +31,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
 
     private static final String TAG = "EventsAdapter";
     private Context context;
-    private List<Lens> products = new ArrayList<>();
+    private List<Product> products = new ArrayList<>();
     private AdapterListener listener;
     private int resId;
     private ImageLoader imgLoader;
     private ProgressDialog pd;
 
 
-    public ProductAdapter(Context con, int res, List<Lens> list){
+    public ProductAdapter(Context con, int res, List<Product> list){
         this.context = con;
         this.products = list;
         this.resId = res;
@@ -69,7 +69,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        Lens product = products.get(position);
+        Product product = products.get(position);
 
         holder.name.setTag(position);
 
@@ -111,26 +111,26 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ViewHold
     }
 
 
-    public void addItem(Lens lens){
+    public void addItem(Product lens){
         products.add(lens);
 //        notifyDataSetChanged();
         notifyItemInserted(products.size() - 1);
     }
 
-    public void addItem(Lens lens, int position){
+    public void addItem(Product lens, int position){
         checkIfNull();
         products.add(position, lens);
         notifyItemInserted(position);
     }
 
-    public void addItems(List<Lens> lenses){
+    public void addItems(List<Product> lenses){
         checkIfNull();
 //        lenses = lenses.subList(0, 4);
         products.addAll(lenses);
         notifyDataSetChanged();
     }
 
-    public void remove(Lens item) {
+    public void remove(Product item) {
         int position = products.indexOf(item);
         products.remove(position);
         notifyItemRemoved(position);

@@ -13,7 +13,7 @@ import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.animation.BounceInterpolator;
 
-import fr.infogene.contacto.R;
+import com.szn.jukebox.R;
 
 /**
  * Classe Utilitaire pour les Animations

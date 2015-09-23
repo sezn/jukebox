@@ -24,40 +24,27 @@ import android.widget.TextView;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
+import com.google.android.gms.analytics.ecommerce.Product;
+import com.google.android.gms.fitness.data.Subscription;
+import com.szn.jukebox.JukeApplication;
+import com.szn.jukebox.R;
+import com.szn.jukebox.adapters.MenuExpandableAdapter;
+import com.szn.jukebox.adapters.SubMenuItem;
+import com.szn.jukebox.fragments.LoginFragment;
+import com.szn.jukebox.interfaces.AdapterListener;
+import com.szn.jukebox.interfaces.FragmentListener;
+import com.szn.jukebox.interfaces.LoginListener;
+import com.szn.jukebox.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.infogene.contacto.JukeApplication;
-import fr.infogene.contacto.R;
-import fr.infogene.contacto.adapters.MenuExpandableAdapter;
-import fr.infogene.contacto.adapters.SubMenuItem;
-import fr.infogene.contacto.fragments.CommandsFragment;
-import fr.infogene.contacto.fragments.ContentFragment;
-import fr.infogene.contacto.fragments.LegalsInfoFragment;
-import fr.infogene.contacto.fragments.LoginFragment;
-import fr.infogene.contacto.fragments.PayFragment;
-import fr.infogene.contacto.fragments.ProductFragment;
-import fr.infogene.contacto.fragments.ProductsListFragment;
-import fr.infogene.contacto.fragments.ProfileFragment;
-import fr.infogene.contacto.fragments.StoreFragment;
-import fr.infogene.contacto.fragments.StoresSearchFragment;
-import fr.infogene.contacto.fragments.SubscriptionFragment;
-import fr.infogene.contacto.interfaces.AdapterListener;
-import fr.infogene.contacto.interfaces.FragmentListener;
-import fr.infogene.contacto.interfaces.LoginListener;
-import fr.infogene.contacto.model.Constants;
-import fr.infogene.contacto.model.Lens;
-import fr.infogene.contacto.model.Prescription;
-import fr.infogene.contacto.model.Store;
-import fr.infogene.contacto.model.Subscription;
-import fr.infogene.contacto.model.User;
-import fr.infogene.contacto.utils.Utils;
 
 
-public class MainActivity extends AppCompatActivity implements LoginListener,FragmentListener,  AdapterListener, View.OnClickListener {
+
+public class MainActivity extends AppCompatActivity implements LoginListener,FragmentListener, AdapterListener, View.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private JukeApplication app;
@@ -284,8 +271,8 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
                 fragment = LoginFragment.newInstance(data);
                 break;
             case FRAGMENT_PRODUCT:
-                if(obj[0] instanceof Lens) {
-                    data.putParcelable(Constants.PRODUCT, (Lens) obj[0]);
+                if(obj[0] instanceof Product) {
+                    data.putParcelable(Constants.PRODUCT, (Product) obj[0]);
                 }
                 fragment = ProductFragment.newInstance(data);
                 break;
@@ -452,7 +439,7 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
     }
 
     @Override
-    public void onSelected(View v, Lens lens) {
+    public void onSelected(View v, Product lens) {
         Log.w(TAG, "onSelected " + v.getId());
         showView(FRAGMENT_PRODUCT, lens);
     }
