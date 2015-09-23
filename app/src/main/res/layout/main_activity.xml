@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" />
+
+
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_below="@id/toolbar">
+
+        <!-- activity view -->
+        <FrameLayout
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:background="#fff"
+            android:layout_height="wrap_content"
+            />
+
+
+        <!-- navigation drawer -->
+        <!--android:background="@color/colorPrimaryDark"-->
+        <RelativeLayout
+            android:layout_width="@dimen/drawer_width"
+            android:layout_height="match_parent"
+            android:background="@drawable/gradient_main"
+            android:layout_gravity="left|start"
+            >
+
+            <RelativeLayout
+                android:id="@+id/menu_profile"
+                android:layout_width="match_parent"
+                android:layout_height="128dp"
+                android:background="@drawable/selector_selectable"
+                >
+
+                <ImageView
+                    android:id="@+id/imageProfile"
+                    android:layout_width="@dimen/profilePic"
+                    android:layout_height="@dimen/profilePic"
+                    android:layout_centerHorizontal="true"
+                    android:clickable="true"
+                    android:src="@drawable/selector_profile"
+                    android:layout_alignParentLeft="true"
+                    android:layout_margin="@dimen/margina"
+                    />
+
+                <View
+                    android:id="@+id/pictureMask"
+                    android:layout_width="@dimen/profilePic"
+                    android:layout_height="@dimen/profilePic"
+                    android:layout_alignLeft="@+id/imageProfile"
+                    android:layout_alignTop="@+id/imageProfile"
+                    android:background="@drawable/selector_pic_mask"
+                    android:clickable="true"
+                    android:visibility="gone" />
+
+
+                <TextView
+                    android:id="@+id/profileUserName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/imageProfile"
+                    android:layout_alignTop="@id/imageProfile"
+                    android:layout_marginLeft="12dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/textSizeNormal"
+                    />
+
+
+                <ImageButton
+                    android:id="@+id/logout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="@dimen/margina"
+                    android:layout_marginBottom="@dimen/margina"
+                    android:src="@drawable/logout_icon"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                     />
+
+            </RelativeLayout>
+
+            <ExpandableListView
+                android:id="@+id/left_drawer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/menu_profile"
+                android:choiceMode="singleChoice"
+                android:divider="@drawable/menu_divider"
+                android:layout_above="@+id/menu_legals"
+                android:dividerHeight="2dp"
+                android:groupIndicator="@android:color/transparent"
+                />
+
+            <TextView
+                android:id="@+id/menu_legals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margina"
+                android:padding="@dimen/margina"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/selector_selectable"
+                android:text="@string/legals_infos"
+                />
+
+        </RelativeLayout>
+
+    </android.support.v4.widget.DrawerLayout>
+
+
+</RelativeLayout>

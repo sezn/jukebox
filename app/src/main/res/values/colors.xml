@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+<!--Sympa
+    <color name="colorPrimary">#8bacbd</color>
+    <color name="colorPrimaryDark">#eaeaea</color>
+    <color name="colorAccent">#fa9581</color>
+-->
+
+    <color name="colorPrimary">#ddf1e8</color>
+    <color name="colorPrimaryDark">#FF008080</color>
+    <!--<color name="colorPrimaryDark">#403d50</color>-->
+    <!--<color name="colorAccent">#bdb7dd</color>-->
+    <color name="colorAccent">#009b9b</color>
+
+
+    <!--<color name="colorPrimary">#FCB813</color>-->
+    <!--<color name="colorPrimaryDark">#BC8A16</color>-->
+    <!--<color name="colorAccent">#FF9C01</color>-->
+    <color name="bg">#F3D8AD</color>
+
+    <color name="blue_bg">#12A7D2</color>
+    <color name="blue">#324376</color>
+    <color name="blue_on">#2b2b56</color>
+    <color name="blueInf">#003366</color>
+
+
+    <color name="orange">#cc5d30</color>
+
+    <!--List Element %2-->
+    <color name="whiteBis">#f2f2f2</color>
+
+
+    <color name="grey">#b37d7d7d</color>
+
+</resources>

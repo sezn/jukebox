@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+    >
+
+    <TextView
+        android:id="@+id/appName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"
+        android:textSize="@dimen/textSizeVeryBig"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/marginc"
+        />
+
+
+    <EditText
+        android:id="@+id/loginUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/marginc"
+        android:layout_marginLeft="@dimen/marginb"
+        android:layout_marginRight="@dimen/marginb"
+        android:padding="@dimen/paddinga"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:hint="@string/username"
+        android:singleLine="true"
+        android:lines="1"
+        android:imeOptions="actionDone"
+        android:background="@drawable/shape_edit_log"
+        android:elevation="@dimen/elevationb"
+        android:layout_gravity="center"
+        android:text="mkh@infogene.fr"
+        />
+
+    <EditText
+        android:id="@+id/loginPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/marginb"
+        android:layout_marginLeft="@dimen/marginb"
+        android:layout_marginRight="@dimen/marginb"
+        android:padding="@dimen/paddinga"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:singleLine="true"
+        android:lines="1"
+        android:imeOptions="actionDone"
+        android:background="@drawable/shape_edit_log"
+        android:elevation="@dimen/elevationb"
+        />
+
+
+    <Button
+        android:id="@+id/loginBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/connect"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/textSizeNormal"
+        android:layout_marginTop="@dimen/marginb"
+        android:layout_marginLeft="@dimen/marginb"
+        android:layout_marginRight="@dimen/marginb"
+        android:background="@drawable/selector_btn_login"
+        android:elevation="@dimen/elevationa"
+        />
+
+</LinearLayout>
