@@ -34,7 +34,6 @@
         android:background="@drawable/shape_edit_log"
         android:elevation="@dimen/elevationb"
         android:layout_gravity="center"
-        android:text="mkh@infogene.fr"
         />
 
     <EditText

@@ -2,6 +2,12 @@
     <string name="app_name">JukeBox</string>
     <string name="action_settings">JukeBox</string>
 
+    <string name="username">JukeBox</string>
+    <string name="password">JukeBox</string>
+    <string name="connect">Connection</string>
+
+    <string name="noData">Pas de données</string>
+
 
 
 </resources>

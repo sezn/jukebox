@@ -7,12 +7,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 
+import com.google.android.gms.analytics.ecommerce.Product;
+
+import com.szn.jukebox.model.Constants;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.szn.jukebox.fragments.PagerItemFragment;
-import com.szn.jukebox.model.Constants;
-import com.szn.jukebox.model.Product;
 
 /**
  * Created by Julien Sezn on 11/09/2015.
