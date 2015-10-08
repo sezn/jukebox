@@ -1,17 +1,26 @@
 package com.szn.jukebox.activities;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,108 +35,60 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.google.android.gms.analytics.ecommerce.Product;
 import com.google.android.gms.fitness.data.Subscription;
-import com.szn.jukebox.JukeApplication;
-import com.szn.jukebox.R;
 import com.szn.jukebox.adapters.MenuExpandableAdapter;
 import com.szn.jukebox.adapters.SubMenuItem;
-import com.szn.jukebox.fragments.LoginFragment;
 import com.szn.jukebox.interfaces.AdapterListener;
+import com.szn.jukebox.interfaces.DialogListener;
 import com.szn.jukebox.interfaces.FragmentListener;
-import com.szn.jukebox.interfaces.LoginListener;
+import com.szn.jukebox.model.MenuI;
 import com.szn.jukebox.utils.Utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
-
-
-public class MainActivity extends AppCompatActivity implements LoginListener,FragmentListener, AdapterListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements FragmentListener, AdapterListener, View.OnClickListener, DialogListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private JukeApplication app;
+    private ContactoApplication app;
     // Used to store the last screen title. For use in {@link #restoreActionBar()}.
     private String prevTag = "";
     private FragmentManager fragmentManager;
     private boolean init = true;
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
-
-    private String[] menuTitles;
-    private List<String> menuItems = new ArrayList<>();
-    private Map<String, List<SubMenuItem>> listSubItems = new HashMap<>();
-
-
     private ExpandableListView leftDrawerList;
     private MenuExpandableAdapter exAdapter;
 
-//    private ListView leftDrawerList;
-//    private ArrayAdapter<String> navigationDrawerAdapter;
+    //    private Map<String, List<SubMenuItem>> listSubItems = new HashMap<>();
+    private List<SubMenuItem> menuList = new ArrayList<>();
 
     private ActionBarDrawerToggle drawerToggle;
-
     private ImageView profilePic;
     private TextView profileUserName;
     private User user;
-
-
     // Fragment actually displayed
     Fragment fragment;
 
-    private final int MENU_PROFILE     = 0;
-    private final int MENU_CATALOG     = 1;
-    private final int MENU_ABO         = 2;
-    private final int MENU_COMMANDS    = 3;
-    private final int MENU_ACTU        = 4;
-    private final int MENU_QUIT        = 5;
-    private final int MENU_DEBUG       = 9;
-    private final int FRAGMENT_PRODUCT = 10;
-    private final int DISPLAY_IMG      = 11;
-    private final int LEGALS           = 12;
-    private final int SEARCH_STORE     = 15;
-    private final int SHOW_STORE       = 16;
-    private final int PAYMENT          = 20;
-
+    private final int MENU_MENU     = 32;
+    private final int NO_ITEM  = -1;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        app = JukeApplication.getInstance();
-        menuTitles = getResources().getStringArray(R.array.menu_items);
+        app = ContactoApplication.getInstance();
+        menuList =  MenuI.getMenuItemList(this);
         user = app.getUser();
-
-
-        for(int i = 0; i < menuTitles.length; i++){
-
-            List<SubMenuItem> subList = new ArrayList<>();
-            menuItems.add(menuTitles[i]);
-
-            if(i == 3){
-                subList.add(new SubMenuItem(0, "Mes Lentilles"));
-                subList.add(new SubMenuItem(1, "Produits"));
-                Log.w(TAG, "Adding child for " + menuTitles[i] );
-            }
-
-            listSubItems.put(menuTitles[i], subList);
-        }
-
-
         fragmentManager = getFragmentManager();
-
         initView();
-
         setupToolbar();
-
-//        if (toolbar != null)
-//            toolbar.setTitle(getTitle());
-
         initDrawer();
-        showView(0);
-
+        showView(MenuI.MENU_ABO, NO_ITEM);
+        registerApp();
     }
 
     private void initView() {
@@ -140,25 +101,36 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
 
-//        leftDrawerList = (ListView) findViewById(R.id.left_drawer);
-//        navigationDrawerAdapter = new ArrayAdapter<>(this, R.layout.menu_item, menuTitles);
-//        leftDrawerList.setAdapter(navigationDrawerAdapter);
-
         leftDrawerList = (ExpandableListView) findViewById(R.id.left_drawer);
 //        leftDrawerList.setGroupIndicator(getResources().getDrawable());
 
-        exAdapter = new MenuExpandableAdapter(this, menuItems, listSubItems);
-        leftDrawerList.setAdapter(exAdapter);
 
-//        leftDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        exAdapter = new MenuExpandableAdapter(this, menuList);
+//        exAdapter = new MenuExpandableAdapter(this, menuItems, listSubItems);
+        leftDrawerList.setAdapter(exAdapter);
 
         leftDrawerList.setOnGroupClickListener(new DrawerGroupClickListener());
         leftDrawerList.setOnChildClickListener(new DrawerChildClickListener());
 
-
         if (user != null)
             setProfile();
+
+        leftDrawerList.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            int previousItem = -1;
+
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                if(groupPosition != previousItem  && previousItem > 0) {
+                    leftDrawerList.collapseGroup(previousItem);
+                    View img = leftDrawerList.getChildAt(previousItem).findViewById(R.id.menu_img);
+                    img.setTag(false);
+                    img.setBackgroundResource(R.drawable.arrow_right);
+                }
+                previousItem = groupPosition;
+            }
+        });
     }
+
 
     private void setProfile() {
 
@@ -175,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
                         profilePic.setImageBitmap(Utils.getCroppedBitmap(bitmap));
 
                     findViewById(R.id.pictureMask).bringToFront();
-                    Log.w(TAG, "onResponse got bitmap");
                 }
 
                 @Override
@@ -186,157 +157,87 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
         }
     }
 
-    /* The click listener for ListView in the navigation drawer */
-/*    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Log.w(TAG, "DrawerItemClickListener: onItemClick");
-            drawerLayout.closeDrawers();
-            showView(position);
-        }
-    }*/
-
 
     private class DrawerGroupClickListener implements ExpandableListView.OnGroupClickListener {
-         @Override
+        @Override
         public boolean onGroupClick(ExpandableListView expandableListView, View view, int position, long l) {
-             Log.w(TAG, "DrawerChildClickListener: onGroupClick " + position);
 
-             if(listSubItems.get(menuItems.get(position)).size() == 0) {
-                 drawerLayout.closeDrawers();
-             }
-             else {
-                 // There is Children
-                 View img = view.findViewById(R.id.img);
-                 boolean collapsed = false;
-                 if(img.getTag() != null)
-                     collapsed = (boolean) img.getTag();
+            if(menuList.get(position).getChilds() == null) {
+//             if(listSubItems.get(menuItems.get(position)).size() == 0) {
+                drawerLayout.closeDrawers();
+            }
+            else {
+                // There is Children
+                View img = view.findViewById(R.id.menu_img);
 
-                 if(collapsed == true){
-                     img.setTag(false);
-                     img.setBackgroundResource(R.drawable.arrow_right);
-                     expandableListView.collapseGroup(position);
-                 }else {
-                     img.setTag(true);
-                     expandableListView.expandGroup(position);
-                     img.setBackgroundResource(R.drawable.arrow_down);
-                 }
+                boolean expanded = false;
+                if(img.getTag() != null)
+                    expanded = (boolean) img.getTag();
+
+                if(expanded == true){
+                    img.setTag(false);
+                    img.setBackgroundResource(R.drawable.arrow_right);
+                    expandableListView.collapseGroup(position);
+                    exAdapter.setUnreadMessages("" + position);
+                }else {
+                    img.setTag(true);
+                    img.setBackgroundResource(R.drawable.arrow_down);
+                    expandableListView.expandGroup(position);
+                }
                 // Return true pour signifier que l'event est Handlé
                 return true;
-             }
+            }
 
-            showView(position);
+            showView(position, NO_ITEM);
             return false;
         }
     }
 
     private class DrawerChildClickListener implements ExpandableListView.OnChildClickListener {
         @Override
-        public boolean onChildClick(ExpandableListView expandableListView, View view, int position, int i1, long l) {
+        public boolean onChildClick(ExpandableListView expandableListView, View view, int position, int childPos, long l) {
             drawerLayout.closeDrawers();
-            showView(position);
+            showView(position, childPos);
             return false;
         }
     }
 
-    private void showView(int position, Object... obj) {
+    private void showView(int position, int childPosition, Object... obj) {
 
         Bundle data = new Bundle();
         int direction = Constants.ANIM_TO_RIGHT;
 
-//        Fragment oldFragment = fragment;
-//        Button sharedImg = null;
-
-        // TMP pour pas crasher si no fragment..
-        fragment = ProfileFragment.newInstance(data);
         reinitToolbar();
 
+        String childTag = null;
+
         switch (position) {
-            case MENU_PROFILE:
+            case MenuI.MENU_PROFILE:
                 fragment = ProfileFragment.newInstance(data);
                 break;
-            case MENU_CATALOG:
-                fragment = ProductsListFragment.newInstance(data);
-                break;
-            case MENU_COMMANDS:
-                fragment = CommandsFragment.newInstance(data);
-                break;
-            case MENU_ACTU:
-//                fragment = AboFragment.newInstance(data);
-                break;
-            case MENU_QUIT:
-                finish();
-                return;
-            case MENU_DEBUG:
-                fragment = LoginFragment.newInstance(data);
-                break;
-            case FRAGMENT_PRODUCT:
-                if(obj[0] instanceof Product) {
-                    data.putParcelable(Constants.PRODUCT, (Product) obj[0]);
-                }
-                fragment = ProductFragment.newInstance(data);
-                break;
-            case MENU_ABO:
-                fragment = SubscriptionFragment.newInstance(data);
-                break;
-            case DISPLAY_IMG:
-                if(obj[0] instanceof Prescription)
-                    data.putParcelable(Constants.PRESCRIPTION, (Prescription) obj[0]);
 
-                fragment = ContentFragment.newInstance(data);
-                break;
-            case SEARCH_STORE:
-                fragment = StoresSearchFragment.newInstance(data);
-//                setCustomToolBarForSearch();
-
-               /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    // On applique les SharedTransitions au vieux
-                    oldFragment.setSharedElementReturnTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform));
-                    oldFragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.explode));
-
-                    // Puis au nouveau
-                    fragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.change_image_transform));
-                    fragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.explode));
-
-                    sharedImg = (Button) oldFragment.getView().findViewById(R.id.changeReferentBtn);
-                }*/
-                break;
-
-            case SHOW_STORE:
-                if(obj != null && obj[0] != null && obj[0] instanceof Store){
-                    Store store = (Store) obj[0];
-                    data.putParcelable(Constants.STORE, store);
-
-                    setCustomToolBarForStore(store, store.isFavOptician);
-                }
-
-
-                fragment = StoreFragment.newInstance(data);
-                break;
-            case LEGALS:
-                fragment = LegalsInfoFragment.newInstance(data);
-                break;
-            case PAYMENT:
-                if(obj != null && obj[0] != null && obj[0] instanceof Float){
-                    data.putFloat(Constants.PRICE, (Float) obj[0]);
-                }
-
-                fragment = PayFragment.newInstance(data);
+            case MenuI.MENU_QUIT:
+//                finish();
+//                return;
+            case MENU_MENU:
+                fragment = MenuFragment.newInstance(data);
                 break;
             default:
-//                fragment = AboFragment.newInstance(data);
-//                fragment = HomeFragment.newInstance(data);
+                fragment = ProfileFragment.newInstance(data);
                 break;
         }
 
-        Log.w(TAG, "Show View: " + fragment.getClass().getSimpleName());
+        Log.w(TAG, "Show View: " + fragment.getClass().getSimpleName() + "  " + childPosition);
         Log.w(TAG, "Prev Tag: " + prevTag);
 
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
-        if(!prevTag.equals(fragment.getClass().getSimpleName())) {
-            prevTag = fragment.getClass().getSimpleName();
+        if( (childTag == null && !prevTag.equals(fragment.getClass().getSimpleName())) || (childTag != null && !prevTag.equals(childTag)) ) {
 
+            if(childTag != null)
+                prevTag = childTag;
+            else
+                prevTag = fragment.getClass().getSimpleName();
 
             if (!init) {
                 if (position == 0 || direction == Constants.ANIM_TO_LEFT) {
@@ -348,10 +249,6 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
 
             ft.replace(R.id.container, fragment, fragment.getClass().getSimpleName());
             ft.addToBackStack(prevTag);
-
-//            if(sharedImg != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-//                ft.addSharedElement(sharedImg, getString(R.string.searchTransition));
-//            }
             ft.commit();
         }
 
@@ -423,43 +320,50 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
     }
 
     @Override
-    public void onLogged() {
-        Log.w(TAG, "onLogged");
-    }
-
-    @Override
-    public void onLogError(VolleyError error) {
-        Log.w(TAG, "onLogError");
-    }
-
-    @Override
-    public void onSelected(View v, int pos) {
-        Log.w(TAG, "onSelected");
-
-    }
-
-    @Override
-    public void onSelected(View v, Product lens) {
+    public void onSelected(View v, Subscription subs, int what) {
         Log.w(TAG, "onSelected " + v.getId());
-        showView(FRAGMENT_PRODUCT, lens);
+
+        switch (v.getId()){
+            case R.id.popUpMenu:
+                if(what == R.id.action_remove)
+                    removeSubscription(subs);
+                else
+                    Log.w(TAG, "onSelected pop up: " + what);
+                break;
+            default:
+                showView(MenuI.DISPLAY_IMG, NO_ITEM, subs.getPrescription().get(0));
+                break;
+        }
+    }
+
+    /**
+     * Interface Générique
+     * @param v
+     * @param obj
+     */
+    @Override
+    public void onSelected(View v, Object... obj) {
+
+        if(obj != null){
+
+            if(obj[0] instanceof Integer){
+                Log.w(TAG, "onSelected " + obj[0]);
+            }else if(obj[0] instanceof Produit){
+                showView(MenuI.FRAGMENT_PRODUCT, NO_ITEM, (Produit) obj[0]);
+            }else if(obj[0] instanceof Product){
+                showView(MenuI.FRAGMENT_PRODUCT, NO_ITEM, (Product) obj[0]);
+            }else if(obj[0] instanceof String){
+                showView(MenuI.FRAGMENT_PRODUCT, NO_ITEM, (String) obj[0]);
+            }else if(obj[0] instanceof Store){
+                showView(MenuI.SHOW_STORE, NO_ITEM, (Store) obj[0]);
+            }
+        }else
+            Log.w(TAG, "onSelected: obj[0] null");
     }
 
     @Override
-    public void onSelected(View v, Subscription subs) {
-        Log.w(TAG, "onSelected " + v.getId());
-        showView(DISPLAY_IMG, subs.getPrescription().get(0));
-    }
-
-    @Override
-    public void onSelected(View v, Store store) {
-        Log.w(TAG, "onSelected " + v.getId() + store.getName());
-        showView(SHOW_STORE, store);
-    }
-
-    @Override
-    public void onPayBtn(View v, float price) {
-        Log.w(TAG, "onPayBtn");
-        showView(PAYMENT, price);
+    public void onPayBtn(Subscription subscription) {
+        showView(MenuI.PAYMENT, NO_ITEM, subscription);
     }
 
     @Override
@@ -468,8 +372,20 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
         app.setFavoriteStore(store);
         fragmentManager.popBackStackImmediate();
 
-        if(fragmentManager.getBackStackEntryCount() > 0)
-            prevTag = fragmentManager.getBackStackEntryAt(fragmentManager.getBackStackEntryCount()-1).getName();
+        if (fragmentManager.getBackStackEntryCount() > 0) {
+            prevTag = fragmentManager.getBackStackEntryAt(fragmentManager.getBackStackEntryCount() - 1).getName();
+            reinitToolbar();
+        }
+    }
+
+
+    @Override
+    public void onItemClick(int from, View v) {
+
+        Log.w(TAG, "onItemClick ");
+        if(from == Constants.NEWS) {
+            showView(MenuI.MENU_NEWS_ITEM, NO_ITEM, (News)v.getTag());
+        }
     }
 
 
@@ -478,15 +394,16 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
 
         switch (view.getId()){
             case R.id.imageProfile:
-                showView(MENU_PROFILE);
+                showView(MenuI.MENU_PROFILE, NO_ITEM);
                 drawerLayout.closeDrawers();
                 break;
             case R.id.menu_legals:
-                showView(LEGALS);
+                showView(MenuI.MENU_LEGALS, NO_ITEM);
                 drawerLayout.closeDrawers();
                 break;
             case R.id.changeReferentBtn:
-                showView(SEARCH_STORE);
+            case R.id.popUpMenu:
+                showView(MenuI.SEARCH_STORE, NO_ITEM);
                 break;
             default:
                 Log.w(TAG, "connais pas");
@@ -498,6 +415,51 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
     @Override
     public void onClickOnView(View v, int state) {
 
+    }
+
+    @Override
+    public void onPayed(boolean status, Subscription subscription) {
+        showView(MenuI.CONFIRM_PAYMENT, NO_ITEM, subscription);
+    }
+
+    @Override
+    public void onClickTakePicture(View v) {
+        Log.w(TAG, "onClickTakePicture");
+        dispatchTakePictureIntent();
+    }
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private String fileStoredPath;
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = Utils.createImageFile();
+            } catch (IOException ex) {
+                Log.e(TAG, ex.getMessage());
+            }
+
+            if (photoFile != null) {
+                fileStoredPath = photoFile.getAbsolutePath();
+                Log.w(TAG, "Image will be save in: " + photoFile.getAbsolutePath());
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            if (fragment instanceof MyOrderFragment) {
+//                fragment.onActivityResult(requestCode, resultCode, data);
+                ((MyOrderFragment) fragment).onPictureTook(fileStoredPath);
+            }
+        }
     }
 
 
@@ -521,7 +483,44 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
         finish();
     }
 
+    View.OnClickListener favoriteListener = new View.OnClickListener() {
+        @Override
+        public void onClick(final View view) {
 
+            final Store store = (Store) view.getTag();
+            String message;
+            if(store.isFavOptician() == false){
+                message = getString(R.string.alert_fav_add1) + " " + store.getName() + " "
+                        + getString(R.string.alert_fav_add2);
+            }else{
+                message =  getString(R.string.alert_fav_remove1) + " " + store.getName() + " "
+                        + getString(R.string.alert_fav_remove2);
+            }
+
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(MainActivity.this, android.R.style.Theme_Light));
+            builder.setTitle(getString(R.string.alert_warning));
+            builder.setCancelable(true);
+            builder.setMessage(message);
+
+            builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if(store.isFavOptician() == false){
+                        view.setBackgroundResource(R.drawable.btn_favorion);
+                        store.setIsFavOptician(true);
+                        app.setFavoriteStore(store);
+                    }else {
+                        app.removeFavoriteStore();
+                        view.setBackgroundResource(R.drawable.btn_favorioff);
+                        store.setIsFavOptician(false);
+                    }
+                }
+            });
+            builder.setNegativeButton(getString(R.string.cancel), null);
+            builder.show();
+        }
+    };
 
     private void setupToolbar(){
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -547,22 +546,6 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
             storeFav.setBackgroundResource(R.drawable.btn_favorioff);
     }
 
-    View.OnClickListener favoriteListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-
-            Store store = (Store) view.getTag();
-
-            if(store.isFavOptician() == false){
-                view.setBackgroundResource(R.drawable.btn_favorion);
-                store.setIsFavOptician(true);
-                app.setFavoriteStore(store);
-            }else {
-                view.setBackgroundResource(R.drawable.btn_favorioff);
-                store.setIsFavOptician(false);
-            }
-        }
-    };
 
     private EditText searchEdit;
     public void setCustomToolBarForSearch() {
@@ -581,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
                     if (zipcode == null || zipcode.equalsIgnoreCase("")) {
                         Log.w(TAG, "Search pas bon");
                     } else {
-                        if(fragment instanceof StoresSearchFragment)
+                        if (fragment instanceof StoresSearchFragment)
                             ((StoresSearchFragment) fragment).filterStores(zipcode);
                     }
                     return true;
@@ -602,10 +585,77 @@ public class MainActivity extends AppCompatActivity implements LoginListener,Fra
     };
 
     public void reinitToolbar(){
-        Log.w(TAG, "Reinit Toolbar");
+        toolbar.setTitle(getTitle());
         toolbar.removeView(findViewById(R.id.store_toolbar));
         toolbar.removeView(findViewById(R.id.search_toolbar));
     }
+
+    private void removeSubscription(Subscription subs) {
+
+        // Si Subscription, NextCommand est là :)
+        if(fragment.getClass().equals(SubscriptionFragment.class))
+            ((SubscriptionFragment)fragment).removeSubscription(subs);
+    }
+
+
+    @Override
+    public void onPositive() {
+        Log.w(TAG, "onPositive");
+        if(fragment.getClass().equals(SubscriptionFragment.class))
+            ((SubscriptionFragment)fragment).subscriptionRemoval();
+
+    }
+
+    @Override
+    public void onNegative() {
+        Log.w(TAG, "onNegative");
+
+    }
+
+    @Override
+    public void onDismiss() {
+        Log.w(TAG, "onDismiss");
+
+    }
+
+
+
+    /***** Nouvelle Implémentation GCM: TESTS ****/
+    protected BroadcastReceiver mRegistrationBroadcastReceiver;
+
+    private void registerApp() {
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                boolean sentToken = sharedPreferences.getBoolean(Constants.SENT_TOKEN_TO_SERVER, false);
+                if (sentToken) {
+                    Log.w(TAG, "mRegistrationBroadcastReceiver: " + getString(R.string.gcm_send_message));
+                } else {
+                    Log.w(TAG, "mRegistrationBroadcastReceiver: " + getString(R.string.token_error_message));
+                }
+            }
+        };
+
+        // Start IntentService to register this application with GCM.
+        Intent intent = new Intent(this, RegistrationIntentService.class);
+        startService(intent);
+    }
+
+
+  /*  void showDialog(String title, String message){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Light));
+        builder.setTitle(title);
+        builder.setCancelable(true);
+        builder.setMessage(message);
+
+        builder.setPositiveButton(getString(R.string.ok), favListener);
+        builder.setNegativeButton(getString(R.string.cancel), null);
+    }*/
+
 
 
 }
