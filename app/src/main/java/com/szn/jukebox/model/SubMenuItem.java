@@ -2,10 +2,8 @@ package com.szn.jukebox.model;
 
 import java.util.List;
 
-/**
- * Created by Julien Sezn on 22/09/2015.
- * For Infogene
- */
+
+
 public class SubMenuItem {
 
     int id; // id | pos

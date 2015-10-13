@@ -2,7 +2,6 @@ package com.szn.jukebox.utils;
 
 /**
  * Created by Julien Sezn on 05/10/2015.
- * For Infogene
  */
 public class StringUtils {
 

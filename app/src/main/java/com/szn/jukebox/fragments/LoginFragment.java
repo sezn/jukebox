@@ -57,8 +57,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         app = JukeApplication.getInstance();
-
-//        getProfile("C00001", "mkh@infogene.fr");
     }
 
     @Override
